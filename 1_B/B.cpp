@@ -5,37 +5,31 @@
 #include <vector>
 
 int main() {
-  int number;
-  std::cin >> number;
-  std::vector<double> mandragors(number);
-  for (int i = 0; i < number; ++i) {
-    double loud;
-    std::cin >> loud;
-    mandragors[i] = log2(loud);
+  size_t number_of_mandrakes;
+  std::cin >> number_of_mandrakes;
+  std::vector<double> mandrakes(number_of_mandrakes);
+  for (size_t i = 0; i < number_of_mandrakes; ++i) {
+    double loudness;
+    std::cin >> loudness;
+    mandrakes[i] = log2(loudness);
   }
-  std::vector<double> prefix_sum(number);
-  prefix_sum[0] = mandragors[0];
-  for (int i = 1; i < number; ++i) {
-    prefix_sum[i] = prefix_sum[i - 1] + mandragors[i];
+  std::vector<double> prefix_sum(number_of_mandrakes + 1, 0);
+  prefix_sum[1] = mandrakes[0];
+  for (size_t i = 2; i <= number_of_mandrakes; ++i) {
+    prefix_sum[i] = prefix_sum[i - 1] + mandrakes[i - 1];
   }
-  int requests;
+  size_t requests;
   std::cin >> requests;
-  std::vector<double> mid_loud(requests);
-  for (int i = 0; i < requests; ++i) {
+  const int kPrecision = 8;
+  for (size_t i = 0; i < requests; ++i) {
     double left;
     double right;
     std::cin >> left >> right;
-    double stepen;
-    if (left == 0) {
-      stepen = prefix_sum[int(right)] / (right - left + 1);
-    } else {
-      stepen = (prefix_sum[int(right)] - prefix_sum[int(left) - 1]) /
-               (right - left + 1);
-    }
-    mid_loud[i] = pow(2, stepen);
-  }
-  const int kPres = 8;
-  for (int i = 0; i < requests; ++i) {
-    std::cout << std::setprecision(kPres) << mid_loud[i] << std::endl;
+    ++left;
+    ++right;
+    double power = (prefix_sum[int(right)] - prefix_sum[int(left) - 1]) /
+                   (right - left + 1);
+    double mid_loudness = pow(2, power);
+    std::cout << std::setprecision(kPrecision) << mid_loudness << std::endl;
   }
 }
