@@ -2,61 +2,54 @@
 #include <iostream>
 #include <vector>
 
-std::pair<int, int> Partition(std::vector<int>& mas, int left, int right) {
-  int index_pivot = left + rand() % (right - left + 1);
-  int pivot = mas[index_pivot];
+std::pair<int, int> Partition(std::vector<int>& elements, int left, int right,
+                              int pivot) {
   int point = left;
-
   for (int i = left; i <= right; ++i) {
-    if (mas[i] < pivot) {
-      std::swap(mas[i], mas[point]);
+    if (elements[i] < pivot) {
+      std::swap(elements[i], elements[point]);
       ++point;
     }
   }
 
   int point1 = point;
   for (int i = point; i <= right; ++i) {
-    if (mas[i] == pivot) {
-      std::swap(mas[i], mas[point]);
+    if (elements[i] == pivot) {
+      std::swap(elements[i], elements[point]);
       ++point;
     }
   }
+
   return {point1 - 1, point};
 }
 
-void QuickSort(std::vector<int>& mas, int left, int right) {
+void QuickSort(std::vector<int>& elements, int left, int right) {
   if (left >= right) {
     return;
   }
 
-  std::pair<int, int> inxs = Partition(mas, left, right);
+  int index_pivot = left + rand() % (right - left + 1);
+  int pivot = elements[index_pivot];
 
-  if (inxs.first == left - 1) {
-    if (inxs.second != right + 1) {
-      QuickSort(mas, inxs.second, right);
-    }
-  } else {
-    if (inxs.second == right + 1) {
-      QuickSort(mas, left, inxs.first);
-    } else {
-      QuickSort(mas, left, inxs.first);
-      QuickSort(mas, inxs.second, right);
-    }
-  }
+  std::pair<int, int> inxs = Partition(elements, left, right, pivot);
+
+  QuickSort(elements, left, inxs.first);
+  QuickSort(elements, inxs.second, right);
 }
 
 int main() {
-  int number;
-  std::cin >> number;
+  size_t size_of_elements;
+  std::cin >> size_of_elements;
 
-  std::vector<int> mas(number);
-  for (int i = 0; i < number; i++) {
-    std::cin >> mas[i];
+  std::vector<int> elements(size_of_elements);
+
+  for (size_t i = 0; i < size_of_elements; ++i) {
+    std::cin >> elements[i];
   }
 
-  QuickSort(mas, 0, number - 1);
+  QuickSort(elements, 0, size_of_elements - 1);
 
-  for (int i = 0; i < number; i++) {
-    std::cout << mas[i] << "\n";
+  for (size_t i = 0; i < size_of_elements; ++i) {
+    std::cout << elements[i] << ' ';
   }
 }
