@@ -1,93 +1,109 @@
 #include <iostream>
 #include <stack>
 
-void Push(std::stack<int>& base, std::stack<int>& min, int value) {
-  if (min.empty()) {
-    base.push(value);
-    min.push(value);
-  } else {
-    int tmp = min.top();
-    base.push(value);
-    min.push(std::min(tmp, value));
-  }
-}
+class Hat {
+ private:
+  std::stack<int> first_;
+  std::stack<int> first_min_;
+  std::stack<int> second_;
+  std::stack<int> second_min_;
 
-void Pop(std::stack<int>& base, std::stack<int>& min) {
-  base.pop();
-  min.pop();
-}
-
-void SwapStacks(std::stack<int>& first, std::stack<int>& first_min,
-                std::stack<int>& second, std::stack<int>& second_min) {
-  while (!first.empty()) {
-    Push(second, second_min, first.top());
-    first.pop();
-    first_min.pop();
-  }
-}
-
-void Min(std::stack<int>& first_min, std::stack<int>& second_min) {
-  if (second_min.empty()) {
-    if (first_min.empty()) {
-      std::cout << "error\n";
+ public:
+  void Push(int value) {
+    if (first_min_.empty()) {
+      first_.push(value);
+      first_min_.push(value);
     } else {
-      std::cout << first_min.top() << "\n";
+      int tmp = first_min_.top();
+      first_.push(value);
+      first_min_.push(std::min(tmp, value));
     }
-  } else {
-    if (first_min.empty()) {
-      std::cout << second_min.top() << "\n";
-    } else {
-      std::cout << std::min(first_min.top(), second_min.top()) << "\n";
+    std::cout << "ok\n";
+  }
+
+  void SwapStacks() {
+    while (!first_.empty()) {
+      if (second_min_.empty()) {
+        second_.push(first_.top());
+        second_min_.push(first_.top());
+      } else {
+        int tmp = second_min_.top();
+        second_.push(first_.top());
+        second_min_.push(std::min(tmp, first_.top()));
+      }
+      first_.pop();
+      first_min_.pop();
     }
   }
-}
 
-void Clear(std::stack<int>& base, std::stack<int>& min) {
-  while (!base.empty()) {
-    Pop(base, min);
-  }
-}
-
-void Dequeue(std::stack<int>& first, std::stack<int>& first_min,
-             std::stack<int>& second, std::stack<int>& second_min) {
-  if (second.empty()) {
-    if (first.empty()) {
-      std::cout << "error\n";
+  void Min() {
+    if (second_min_.empty()) {
+      if (first_min_.empty()) {
+        std::cout << "error\n";
+      } else {
+        std::cout << first_min_.top() << "\n";
+      }
     } else {
-      SwapStacks(first, first_min, second, second_min);
-      int cur = second.top();
-      Pop(second, second_min);
+      if (first_min_.empty()) {
+        std::cout << second_min_.top() << "\n";
+      } else {
+        std::cout << std::min(first_min_.top(), second_min_.top()) << "\n";
+      }
+    }
+  }
+
+  void Clear() {
+    while (!first_.empty()) {
+      first_.pop();
+      first_min_.pop();
+    }
+    while (!second_.empty()) {
+      second_.pop();
+      second_min_.pop();
+    }
+    std::cout << "ok\n";
+  }
+
+  void Dequeue() {
+    if (second_.empty()) {
+      if (first_.empty()) {
+        std::cout << "error\n";
+      } else {
+        SwapStacks();
+        int cur = second_.top();
+        second_.pop();
+        second_min_.pop();
+        std::cout << cur << "\n";
+      }
+    } else {
+      int cur = second_.top();
+      second_.pop();
+      second_min_.pop();
       std::cout << cur << "\n";
     }
-  } else {
-    int cur = second.top();
-    Pop(second, second_min);
-    std::cout << cur << "\n";
   }
-}
 
-void Front(std::stack<int>& first, std::stack<int>& first_min,
-           std::stack<int>& second, std::stack<int>& second_min) {
-  if (second.empty()) {
-    if (first.empty()) {
-      std::cout << "error\n";
+  void Front() {
+    if (second_.empty()) {
+      if (first_.empty()) {
+        std::cout << "error\n";
+      } else {
+        SwapStacks();
+        std::cout << second_.top() << "\n";
+      }
     } else {
-      SwapStacks(first, first_min, second, second_min);
-      std::cout << second.top() << "\n";
+      std::cout << second_.top() << "\n";
     }
-  } else {
-    std::cout << second.top() << "\n";
   }
-}
+
+  void Size() { std::cout << first_.size() + second_.size() << "\n"; }
+};
 
 int main() {
   int requests;
   std::cin >> requests;
 
-  std::stack<int> first;
-  std::stack<int> first_min;
-  std::stack<int> second;
-  std::stack<int> second_min;
+  Hat hat;
 
   for (int i = 0; i < requests; ++i) {
     std::string str;
@@ -96,20 +112,17 @@ int main() {
     if (str == "enqueue") {
       int cur;
       std::cin >> cur;
-      Push(first, first_min, cur);
-      std::cout << "ok\n";
+      hat.Push(cur);
     } else if (str == "dequeue") {
-      Dequeue(first, first_min, second, second_min);
+      hat.Dequeue();
     } else if (str == "min") {
-      Min(first_min, second_min);
+      hat.Min();
     } else if (str == "size") {
-      std::cout << first.size() + second.size() << "\n";
+      hat.Size();
     } else if (str == "front") {
-      Front(first, first_min, second, second_min);
+      hat.Front();
     } else {
-      Clear(first, first_min);
-      Clear(second, second_min);
-      std::cout << "ok\n";
+      hat.Clear();
     }
   }
 }
