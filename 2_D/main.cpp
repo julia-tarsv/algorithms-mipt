@@ -1,111 +1,102 @@
 #include <iostream>
+#include <optional>
 #include <stack>
 
 class Hat {
  private:
-  std::stack<int> first_;
+  std::stack<int> first_main_;
   std::stack<int> first_min_;
-  std::stack<int> second_;
+  std::stack<int> second_main_;
   std::stack<int> second_min_;
 
  public:
   void Push(int value) {
     if (first_min_.empty()) {
-      first_.push(value);
+      first_main_.push(value);
       first_min_.push(value);
     } else {
       int tmp = first_min_.top();
-      first_.push(value);
+      first_main_.push(value);
       first_min_.push(std::min(tmp, value));
     }
-    std::cout << "ok\n";
   }
 
   void SwapStacks() {
-    while (!first_.empty()) {
+    while (!first_main_.empty()) {
       if (second_min_.empty()) {
-        second_.push(first_.top());
-        second_min_.push(first_.top());
+        second_min_.push(first_main_.top());
       } else {
         int tmp = second_min_.top();
-        second_.push(first_.top());
-        second_min_.push(std::min(tmp, first_.top()));
+        second_min_.push(std::min(tmp, first_main_.top()));
       }
-      first_.pop();
+      second_main_.push(first_main_.top());
+      first_main_.pop();
       first_min_.pop();
     }
   }
 
-  void Min() {
+  std::optional<int> Min() {
     if (second_min_.empty()) {
       if (first_min_.empty()) {
-        std::cout << "error\n";
-      } else {
-        std::cout << first_min_.top() << "\n";
+        return {};
       }
-    } else {
-      if (first_min_.empty()) {
-        std::cout << second_min_.top() << "\n";
-      } else {
-        std::cout << std::min(first_min_.top(), second_min_.top()) << "\n";
-      }
+      return first_min_.top();
     }
+    if (first_min_.empty()) {
+      return second_min_.top();
+    }
+    return std::min(first_min_.top(), second_min_.top());
   }
 
   void Clear() {
-    while (!first_.empty()) {
-      first_.pop();
+    while (!first_main_.empty()) {
+      first_main_.pop();
       first_min_.pop();
     }
-    while (!second_.empty()) {
-      second_.pop();
+    while (!second_main_.empty()) {
+      second_main_.pop();
       second_min_.pop();
     }
-    std::cout << "ok\n";
   }
 
-  void Dequeue() {
-    if (second_.empty()) {
-      if (first_.empty()) {
-        std::cout << "error\n";
-      } else {
-        SwapStacks();
-        int cur = second_.top();
-        second_.pop();
-        second_min_.pop();
-        std::cout << cur << "\n";
+  std::optional<int> Dequeue() {
+    if (second_main_.empty()) {
+      if (first_main_.empty()) {
+        return {};
       }
-    } else {
-      int cur = second_.top();
-      second_.pop();
+      SwapStacks();
+      int cur = second_main_.top();
+      second_main_.pop();
       second_min_.pop();
-      std::cout << cur << "\n";
+      return cur;
     }
+    int cur = second_main_.top();
+    second_main_.pop();
+    second_min_.pop();
+    return cur;
   }
 
-  void Front() {
-    if (second_.empty()) {
-      if (first_.empty()) {
-        std::cout << "error\n";
-      } else {
-        SwapStacks();
-        std::cout << second_.top() << "\n";
+  std::optional<int> Front() {
+    if (second_main_.empty()) {
+      if (first_main_.empty()) {
+        return {};
       }
-    } else {
-      std::cout << second_.top() << "\n";
+      SwapStacks();
+      return second_main_.top();
     }
+    return second_main_.top();
   }
 
-  void Size() { std::cout << first_.size() + second_.size() << "\n"; }
+  size_t Size() { return first_main_.size() + second_main_.size(); }
 };
 
 int main() {
-  int requests;
+  size_t requests;
   std::cin >> requests;
 
   Hat hat;
 
-  for (int i = 0; i < requests; ++i) {
+  for (size_t i = 0; i < requests; ++i) {
     std::string str;
     std::cin >> str;
 
@@ -113,16 +104,33 @@ int main() {
       int cur;
       std::cin >> cur;
       hat.Push(cur);
+      std::cout << "ok\n";
     } else if (str == "dequeue") {
-      hat.Dequeue();
+      std::optional<int> elem = hat.Dequeue();
+      if (elem) {
+        std::cout << elem.value() << "\n";
+      } else {
+        std::cout << "error\n";
+      }
     } else if (str == "min") {
-      hat.Min();
+      std::optional<int> elem = hat.Min();
+      if (elem) {
+        std::cout << elem.value() << "\n";
+      } else {
+        std::cout << "error\n";
+      }
     } else if (str == "size") {
-      hat.Size();
+      std::cout << hat.Size() << "\n";
     } else if (str == "front") {
-      hat.Front();
+      std::optional<int> elem = hat.Front();
+      if (elem) {
+        std::cout << elem.value() << "\n";
+      } else {
+        std::cout << "error\n";
+      }
     } else {
       hat.Clear();
+      std::cout << "ok\n";
     }
   }
 }
