@@ -2,12 +2,12 @@
 #include <stack>
 #include <vector>
 
-/* 
+/*
 Программа получает на вход количество участников в виде позывной гонщика —имя машины N.
 Далее следует N строк, каждая строка содержит ровно два слова.
-Затем идет число Q (1 ≤ Q ≤ 105) — количество запросов к модулю.
-Далее на каждой следующей из Q строк идет слово, к которому надо вывести,
-если на входе имя, соответствующий позывной гонщика, иначе — имя машины, соответствующей гонщику.
+Затем идет число Q - количество запросов к модулю.
+На каждой следующей из Q строк идет слово, к которому надо вывести, если на входе имя,
+соответствующий позывной гонщика, иначе — имя машины, соответствующей гонщику.
 */
 
 class Tree {
@@ -17,15 +17,15 @@ class Tree {
     int priority;
     Node* left;
     Node* right;
-    std::string meaning;
+    std::string value;
 
     Node() : priority(0), left(nullptr), right(nullptr) {}
-    Node(const std::string& key, int priority, const std::string& meaning)
+    Node(const std::string& key, int priority, const std::string& value)
         : key(key),
           priority(priority),
           left(nullptr),
           right(nullptr),
-          meaning(meaning) {}
+          value(value) {}
   }* node_;
 
   Node* Merge(Node* left, Node* right) {
@@ -71,14 +71,14 @@ class Tree {
     delete vert;
   }
 
-  void Insert(const std::string& key, int priority, const std::string& meaning);
-  std::string Find(const std::string& str) { return FindHelp(node_, str); }
+  void Insert(const std::string& key, int priority, const std::string& value);
+  std::string Find(const std::string& key) { return FindHelp(node_, key); }
   ~Tree() { Delete(node_); }
 };
 
 void Tree::Insert(const std::string& key, int priority,
-                  const std::string& meaning) {
-  Node* new_node = new Node(key, priority, meaning);
+                  const std::string& value) {
+  Node* new_node = new Node(key, priority, value);
   std::pair<Node*, Node*> new_tree = Split(node_, key);
   node_ = Merge(new_tree.first, Merge(new_node, new_tree.second));
 }
@@ -88,7 +88,7 @@ std::string Tree::FindHelp(Node* main, const std::string& key) {
     return "";
   }
   if (main->key == key) {
-    return main->meaning;
+    return main->value;
   }
   if (main->key < key) {
     return FindHelp(main->right, key);
@@ -97,29 +97,29 @@ std::string Tree::FindHelp(Node* main, const std::string& key) {
 }
 
 int main() {
-  size_t num;
-  std::cin >> num;
-  Tree node1;
-  Tree node2;
-  for (size_t i = 0; i < num; ++i) {
-    std::string elem1;
-    std::string elem2;
-    std::cin >> elem1 >> elem2;
-    node1.Insert(elem1, rand(), elem2);
-    node2.Insert(elem2, rand(), elem1);
+  size_t numbers;
+  std::cin >> numbers;
+  Tree node_name;
+  Tree node_car;
+  for (size_t i = 0; i < numbers; ++i) {
+    std::string name;
+    std::string car;
+    std::cin >> name >> car;
+    node_name.Insert(name, rand(), car);
+    node_car.Insert(car, rand(), name);
   }
 
   size_t requests;
   std::cin >> requests;
   for (size_t i = 0; i < requests; ++i) {
-    std::string str;
-    std::cin >> str;
-    std::string variant1 = node1.Find(str);
-    std::string variant2 = node2.Find(str);
-    if (variant1.empty()) {
-      std::cout << variant2 << "\n";
+    std::string key;
+    std::cin >> key;
+    std::string name = node_name.Find(key);
+    std::string car = node_car.Find(key);
+    if (name.empty()) {
+      std::cout << car << "\n";
     } else {
-      std::cout << variant1 << "\n";
+      std::cout << name << "\n";
     }
   }
 }
