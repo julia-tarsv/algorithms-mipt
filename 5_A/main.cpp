@@ -1,39 +1,35 @@
-#include <algorithm>
 #include <iostream>
 #include <vector>
 
-int main() {
-  size_t numbers;
-  std::cin >> numbers;
-  std::vector<int> arr(numbers + 1);
-  for (size_t i = 1; i <= numbers; ++i) {
-    std::cin >> arr[numbers - i + 1];
+/*минимизировать максимальное число экспериментов при запуске самолётов*/
+
+void Calculate(size_t numbers, size_t planes, std::vector<size_t> column) {
+  for (size_t j = 1; j <= numbers; ++j) {
+    std::vector<size_t> save_column;
+    save_column = column;
+    for (size_t i = 1; i <= planes; ++i) {
+      column[i] = save_column[i - 1] + save_column[i];
+    }
+    if (column[planes] >= numbers) {
+      std::cout << j;
+      return;
+    }
   }
-  const int kInf = 2147483647;
-  std::vector<int> dp(numbers + 1, kInf);
-  // dp[i] - число, на которое оканчивается невозрастающая посл-ть длины i
-  dp[0] = -kInf;
-  std::vector<int> path(numbers + 1);  // позиция предыдущего эл-та a[i]
-  std::vector<int> prev_index(
-      numbers + 1);  // индекс эл-та, на кот-ый заканчивается посл-ть длины i
-  prev_index[0] = -1;
-  size_t cnt = 0;
-  for (size_t i = 1; i <= numbers; ++i) {
-    size_t index = std::lower_bound(dp.begin(), dp.end(), arr[i]) - dp.begin();
-    dp[index] = arr[i];
-    path[i] = prev_index[index - 1];
-    prev_index[index] = i;
-    cnt = std::max(cnt, index);
-  }
-  std::cout << cnt << "\n";
-  std::vector<size_t> result;
-  int prev = prev_index[cnt];
-  while (prev != -1) {
-    result.push_back(prev);
-    prev = path[prev];
-  }
-  for (size_t i = 0; i < result.size(); ++i) {
-    std::cout << numbers - result[i] + 1 << ' ';
-  }
+  std::cout << -1;
 }
 
+int main() {
+  size_t numbers;
+  size_t planes;
+  std::cin >> numbers >> planes;
+  std::vector<size_t> column(planes + 2);
+  // column[i] - max высота дома при запуске i самолётиков
+  for (size_t i = 0; i <= planes; ++i) {
+    column[i] = 1;
+  }
+  if (numbers == 1) {
+    std::cout << 0;
+    return 0;
+  }
+  Calculate(numbers, planes, column);
+}
