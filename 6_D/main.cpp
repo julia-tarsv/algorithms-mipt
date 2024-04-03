@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 
+//найти компоненты сильной связанности
+
 class Graph {
 private:
   size_t size_;
