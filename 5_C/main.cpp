@@ -1,26 +1,10 @@
 #include <iostream>
 #include <vector>
 
-void Accelerate() {
-  std::ios_base::sync_with_stdio(false);
-  std::cin.tie(0);
-  std::cout.tie(0);
-}
+/*минимизировать максимальное число экспериментов при запуске самолётов*/
 
-int main() {
-  Accelerate();
-  size_t numbers;
-  size_t planes;
-  std::cin >> numbers >> planes;
-  std::vector<size_t> column(planes + 2);
-  for (size_t i = 0; i <= planes; ++i) {
-    column[i] = 1;
-  }
-  if (numbers == 1) {
-    std::cout << 0;
-    return 0;
-  }
-
+void CalculateColumn(size_t numbers, size_t planes,
+                     std::vector<size_t> column) {
   for (size_t j = 1; j <= numbers; ++j) {
     std::vector<size_t> save_column;
     save_column = column;
@@ -29,8 +13,24 @@ int main() {
     }
     if (column[planes] >= numbers) {
       std::cout << j;
-      return 0;
+      return;
     }
   }
   std::cout << -1;
+}
+
+int main() {
+  size_t numbers;
+  size_t planes;
+  std::cin >> numbers >> planes;
+  std::vector<size_t> column(planes + 1);
+  // column[i] - max высота дома при запуске i самолётиков
+  for (size_t i = 0; i <= planes; ++i) {
+    column[i] = 1;
+  }
+  if (numbers == 1) {
+    std::cout << 0;
+    return 0;
+  }
+  CalculateColumn(numbers, planes, column);
 }
