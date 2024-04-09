@@ -2,11 +2,12 @@
 #include <iostream>
 #include <vector>
 
-/* задача о рюкзаке */
+// задача о рюкзаке
 
-void CalculateDp(std::vector<int>& weights, std::vector<int>& costs,
-                 std::vector<std::vector<int>>& dp,
-                 std::vector<std::vector<std::pair<size_t, size_t>>>& path) {
+void CalculateBackpack(
+    std::vector<int>& weights, std::vector<int>& costs,
+    std::vector<std::vector<int>>& dp,
+    std::vector<std::vector<std::pair<size_t, size_t>>>& path) {
   for (size_t i = 1; i < costs.size(); ++i) {
     for (size_t j = 1; j < dp[0].size(); ++j) {
       if (static_cast<int>(j) >= weights[i] &&
@@ -57,11 +58,12 @@ int main() {
   for (size_t i = 1; i <= number; ++i) {
     std::cin >> costs[i];
   }
+
   std::vector<std::vector<int>> dp(number + 1,
                                    std::vector<int>(max_weight + 1));
   // dp[i][j] - max стоимость рюкзака вместимости j, если использовать первые i
   // предметов
-  
+
   for (size_t i = 0; i <= number; ++i) {
     dp[i][0] = 0;
   }
@@ -72,7 +74,7 @@ int main() {
   std::vector<std::vector<std::pair<size_t, size_t>>> path(
       number + 1, std::vector<std::pair<size_t, size_t>>(max_weight + 1));
 
-  CalculateDp(weights, costs, dp, path);
+  CalculateBackpack(weights, costs, dp, path);
 
   CalculatePath(costs, path);
 }
