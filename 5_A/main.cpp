@@ -2,10 +2,11 @@
 #include <iostream>
 #include <vector>
 
-/*найти наибольшую невозрастающую подпоследовательность*/ 
+// найти наибольшую невозрастающую подпоследовательность
 
-size_t CalculateDp(std::vector<int>& dp, std::vector<int>& elements,
-                   std::vector<int>& previous_index, std::vector<int>& path) {
+size_t CalculateSequence(std::vector<int>& dp, std::vector<int>& elements,
+                         std::vector<int>& previous_index,
+                         std::vector<int>& path) {
   size_t max_index = 0;
   for (size_t i = 1; i < dp.size(); ++i) {
     size_t index =
@@ -46,7 +47,7 @@ int main() {
       numbers + 1);  // индекс эл-та, на кот-ый заканчивается посл-ть длины i
   previous_index[0] = -1;
 
-  size_t max_index = CalculateDp(dp, elements, previous_index, path);
+  size_t max_index = CalculateSequence(dp, elements, previous_index, path);
   std::cout << max_index << "\n";
   std::vector<size_t> result;
   CalculatePath(result, previous_index, max_index, path);
