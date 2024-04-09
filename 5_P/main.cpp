@@ -13,7 +13,7 @@ bool AlternatingMask(size_t mask, size_t num) {
   return true;
 }
 
-void Calculate(size_t numbers1, size_t numbers2,
+void CheckMask(size_t numbers1, size_t numbers2,
                std::vector<std::vector<char>>& arr,
                std::vector<std::vector<int>>& can_mask) {
   for (size_t i = 0; i < numbers1; ++i) {
@@ -28,9 +28,9 @@ void Calculate(size_t numbers1, size_t numbers2,
   }
 }
 
-void CalculateDp(size_t numbers1, const int kMod,
-                 std::vector<std::vector<int>>& can_mask,
-                 std::vector<std::vector<long long>>& dp) {
+void CalculateColoration(size_t numbers1, const int kMod,
+                         std::vector<std::vector<int>>& can_mask,
+                         std::vector<std::vector<long long>>& dp) {
   for (size_t j = 1; j < dp.size(); ++j) {
     for (size_t mask = 0; mask < (1 << numbers1); ++mask) {
       if (can_mask[j][mask] == 1) {
@@ -50,7 +50,9 @@ int main() {
   size_t numbers2;
   std::cin >> numbers1 >> numbers2;
   const int kMod = 1e9 + 7;
+
   std::vector<std::vector<char>> arr(numbers1, std::vector<char>(numbers2));
+
   std::vector<std::vector<long long>> dp(numbers2,
                                          std::vector<long long>(1 << numbers1));
   // dp[i][mask] - число раскрасок первых i столбцов, если за ними следует mask
@@ -64,13 +66,13 @@ int main() {
     }
   }
 
-  Calculate(numbers1, numbers2, arr, can_mask);
+  CheckMask(numbers1, numbers2, arr, can_mask);
 
   for (size_t mask = 0; mask < (1 << numbers1); ++mask) {
     dp[0][mask] = can_mask[0][mask];
   }
 
-  CalculateDp(numbers1, kMod, can_mask, dp);
+  CalculateColoration(numbers1, kMod, can_mask, dp);
 
   size_t result = 0;
   for (size_t i = 0; i < (1 << numbers1); ++i) {
