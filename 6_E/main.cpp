@@ -6,26 +6,17 @@
 
 // найти все мосты
 
+int timer = 0;
 class Graph {
  private:
   std::vector<std::vector<int>> graph_;
-  std::vector<int> used_;
-  std::vector<int> ret_;
 
  public:
-  int timer = 0;
-  std::vector<std::pair<int, size_t>> time;
-  std::vector<std::pair<int, int>> bridges;
-
-  Graph(size_t size) : graph_(size), used_(size), ret_(size), time(size) {}
+  Graph(size_t size) : graph_(size) {}
 
   void AddEdge(int vertex1, int vertex2);
 
   std::vector<int>& GetGraph(size_t vertex) { return graph_[vertex]; }
-
-  std::vector<int>& GetUsed() { return used_; }
-
-  std::vector<int>& GetRet() { return ret_; }
 };
 
 void Graph::AddEdge(int vertex1, int vertex2) {
@@ -33,36 +24,42 @@ void Graph::AddEdge(int vertex1, int vertex2) {
   graph_[vertex2].push_back(vertex1);
 }
 
-void Dfs(Graph& graph, int vertex, int previous) {
-  graph.GetUsed()[vertex] = 1;
-  graph.time[vertex].first = graph.timer;
-  ++graph.timer;
-  graph.GetRet()[vertex] = graph.time[vertex].first;
+void Dfs(Graph& graph, std::pair<int, int> vertex_previous,
+         std::vector<int>& used, std::vector<int>& ret,
+         std::vector<std::pair<int, size_t>>& time,
+         std::vector<std::pair<int, int>>& bridges) {
+  used[vertex_previous.first] = 1;
+  time[vertex_previous.first].first = timer;
+  ++timer;
+  ret[vertex_previous.first] = time[vertex_previous.first].first;
 
-  for (auto elem : graph.GetGraph(vertex)) {
-    if (elem == previous) {
+  for (auto elem : graph.GetGraph(vertex_previous.first)) {
+    if (elem == vertex_previous.second) {
       continue;
     }
 
-    if (graph.GetUsed()[elem] == 0) {
-      Dfs(graph, elem, vertex);
-      graph.GetRet()[vertex] =
-          std::min(graph.GetRet()[vertex], graph.GetRet()[elem]);
+    if (used[elem] == 0) {
+      Dfs(graph, {elem, vertex_previous.first}, used, ret, time, bridges);
+      ret[vertex_previous.first] =
+          std::min(ret[vertex_previous.first], ret[elem]);
 
-      if (graph.GetRet()[elem] == graph.time[elem].first) {
-        graph.bridges.push_back({vertex, elem});
+      if (ret[elem] == time[elem].first) {
+        bridges.push_back({vertex_previous.first, elem});
       }
     } else {
-      graph.GetRet()[vertex] =
-          std::min(graph.GetRet()[vertex], graph.time[elem].first);
+      ret[vertex_previous.first] =
+          std::min(ret[vertex_previous.first], time[elem].first);
     }
   }
 }
 
-void CntBridges(Graph& graph, size_t size) {
+void CntBridges(Graph& graph, size_t size, std::vector<int>& used,
+                std::vector<int>& ret,
+                std::vector<std::pair<int, size_t>>& time,
+                std::vector<std::pair<int, int>>& bridges) {
   for (size_t i = 1; i < size; ++i) {
-    if (graph.GetUsed()[i] == 0) {
-      Dfs(graph, i, -1);
+    if (used[i] == 0) {
+      Dfs(graph, {i, -1}, used, ret, time, bridges);
     }
   }
 }
@@ -74,6 +71,11 @@ int main() {
   Graph graph(num_vertex + 1);
   std::map<std::pair<size_t, size_t>, size_t> num_edge;
   std::set<std::pair<size_t, size_t>> double_edges;
+
+  std::vector<int> used(num_vertex + 1);
+  std::vector<int> ret(num_vertex + 1);
+  std::vector<std::pair<int, size_t>> time(num_vertex + 1);
+  std::vector<std::pair<int, int>> bridges;
 
   for (size_t i = 0; i < edge; ++i) {
     int start;
@@ -92,14 +94,14 @@ int main() {
     num_edge.insert({{finish, start}, i + 1});
   }
 
-  CntBridges(graph, num_vertex + 1);
+  CntBridges(graph, num_vertex + 1, used, ret, time, bridges);
 
   std::vector<size_t> res;
-  for (size_t i = 0; i < graph.bridges.size(); ++i) {
-    if (double_edges.find({graph.bridges[i]}) != double_edges.end()) {
+  for (size_t i = 0; i < bridges.size(); ++i) {
+    if (double_edges.find({bridges[i]}) != double_edges.end()) {
       continue;
     }
-    res.push_back(num_edge.find(graph.bridges[i])->second);
+    res.push_back(num_edge.find(bridges[i])->second);
   }
 
   std::cout << res.size() << "\n";
