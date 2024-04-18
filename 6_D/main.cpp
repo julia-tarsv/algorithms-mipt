@@ -4,15 +4,14 @@
 
 // найти компоненты сильной связности
 
+int timer = 0;
+
 class Graph {
  private:
   std::vector<std::vector<int>> graph_;
 
  public:
-  int timer = 0;
-  std::vector<std::pair<int, size_t>> time;
-
-  explicit Graph(size_t size) : graph_(size), time(size - 1) {}
+  explicit Graph(size_t size) : graph_(size) {}
 
   void AddEdge(int vertex1, int vertex2);
 
@@ -23,17 +22,18 @@ void Graph::AddEdge(int vertex1, int vertex2) {
   graph_[vertex1].push_back(vertex2);
 }
 
-void Dfs(Graph& graph, size_t vertex, std::vector<int>& used) {
+void Dfs(Graph& graph, size_t vertex, std::vector<int>& used,
+         std::vector<std::pair<int, size_t>>& time) {
   used[vertex] = 1;
-  ++graph.timer;
+  ++timer;
   for (auto elem : graph.GetNeighbours(vertex)) {
     if (used[elem] == 0) {
-      Dfs(graph, elem, used);
+      Dfs(graph, elem, used, time);
     }
   }
 
   used[vertex] = 2;
-  graph.time[vertex - 1] = {graph.timer++, vertex};
+  time[vertex - 1] = {timer++, vertex};
 }
 
 void DfsCnt(Graph& graph, size_t vertex, size_t cnt, std::vector<int>& color) {
@@ -47,24 +47,26 @@ void DfsCnt(Graph& graph, size_t vertex, size_t cnt, std::vector<int>& color) {
 
 std::vector<int>& Graph::GetNeighbours(size_t vertex) { return graph_[vertex]; }
 
-void TimeCnt(Graph& graph, size_t size, std::vector<int>& used) {
+void TimeCnt(Graph& graph, size_t size, std::vector<int>& used,
+             std::vector<std::pair<int, size_t>>& time) {
   for (size_t i = 1; i < size; ++i) {
     if (used[i] == 0) {
-      Dfs(graph, i, used);
+      Dfs(graph, i, used, time);
     }
   }
 
-  std::sort(graph.time.rbegin(), graph.time.rend());
+  std::sort(time.rbegin(), time.rend());
 }
 
 std::vector<int> CountComponents(Graph& graph, size_t size,
-                                 std::vector<int>& color) {
+                                 std::vector<int>& color,
+                                 std::vector<std::pair<int, size_t>>& time) {
   std::vector<int> res_components;
 
   size_t cnt = 1;
   for (size_t i = 0; i < size - 1; ++i) {
-    if (color[graph.time[i].second] == 0) {
-      DfsCnt(graph, graph.time[i].second, cnt, color);
+    if (color[time[i].second] == 0) {
+      DfsCnt(graph, time[i].second, cnt, color);
       ++cnt;
     }
   }
@@ -82,8 +84,11 @@ int main() {
   std::cin >> num_vertex >> edge;
   Graph graph(num_vertex + 1);
   Graph graph_reverse(num_vertex + 1);
+
   std::vector<int> used(num_vertex + 1);
   std::vector<int> color(num_vertex + 1);
+
+  std::vector<std::pair<int, size_t>> time(num_vertex);
 
   for (size_t i = 0; i < edge; ++i) {
     int start;
@@ -93,10 +98,10 @@ int main() {
     graph_reverse.AddEdge(finish, start);
   }
 
-  TimeCnt(graph, num_vertex + 1, used);
-  graph_reverse.time = graph.time;
+  TimeCnt(graph, num_vertex + 1, used, time);
 
-  std::vector<int> res = CountComponents(graph_reverse, num_vertex + 1, color);
+  std::vector<int> res =
+      CountComponents(graph_reverse, num_vertex + 1, color, time);
 
   int cnt_components = 0;
   for (size_t i = 0; i < res.size(); ++i) {
