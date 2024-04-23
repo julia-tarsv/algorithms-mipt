@@ -2,6 +2,8 @@
 #include <set>
 #include <vector>
 
+// найти расстояния от указанной начальной комнаты до его 0-й, 1-й, 2-й и т. д. комнат
+
 class Graph {
 private:
   size_t size_;
