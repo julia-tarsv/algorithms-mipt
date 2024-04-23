@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 
+// найти цикл с восстановлением вершин в нём
+
 class Graph {
 private:
   size_t size_;
