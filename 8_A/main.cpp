@@ -2,32 +2,35 @@
 #include <set>
 #include <vector>
 
-// найти расстояния от указанной начальной комнаты до его 0-й, 1-й, 2-й и т. д. комнат
+// найти расстояния от указанной комнаты до 0-й, 1-й и т.д.
+
+const int cKMax = 2009000999;
 
 class Graph {
-private:
-  size_t size_;
-
-public:
-  std::vector<std::vector<std::pair<int, int>>> graph;
-
-  Graph(size_t size) : size_(size), graph(size) {}
+ public:
+  explicit Graph(size_t size) : size_(size), graph_(size) {}
 
   void UpdateGraph(size_t start, size_t end, size_t length);
 
   size_t Size() const { return size_; }
+
+  std::vector<std::pair<int, int>> Neighbours(size_t vertex) {
+    return graph_[vertex];
+  }
+
+ private:
+  size_t size_;
+  std::vector<std::vector<std::pair<int, int>>> graph_;
 };
 
 void Graph::UpdateGraph(size_t start, size_t end, size_t length) {
-  graph[start].push_back({end, length});
-  graph[end].push_back({start, length});
+  graph_[start].push_back({end, length});
+  graph_[end].push_back({start, length});
 }
 
 std::vector<int> FindDist(size_t start, Graph& graph) {
   std::set<std::pair<int, int>> set;
   set.insert({0, start});
-
-  const int cKMax = 2009000999;
   std::vector<int> dist(graph.Size(), cKMax);
   dist[start] = 0;
 
@@ -36,7 +39,7 @@ std::vector<int> FindDist(size_t start, Graph& graph) {
     int vertex = top.second;
     set.erase(set.begin());
 
-    for (auto elem : graph.graph[vertex]) {
+    for (auto elem : graph.Neighbours(vertex)) {
       int new_dist = dist[vertex] + elem.second;
       if (new_dist < dist[elem.first]) {
         set.erase({dist[elem.first], elem.first});
