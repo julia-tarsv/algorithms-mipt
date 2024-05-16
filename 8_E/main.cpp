@@ -5,7 +5,17 @@
 // найти цикл с восстановлением вершин в нём
 
 class Graph {
-private:
+ public:
+  explicit Graph(size_t size) : size_(size), graph_(size) {}
+
+  void AddEdge(int start, int finish, int cost);
+
+  size_t Size() const { return size_; }
+
+  std::vector<int> FindDistance(std::vector<int>& dp,
+                                std::vector<int>& parents);
+
+ private:
   size_t size_;
 
   struct Edge {
@@ -14,24 +24,17 @@ private:
     int cost;
   };
 
-public:
-  std::vector<Edge> graph;
-
-  explicit Graph(size_t size) : size_(size), graph(size) {}
-
-  void AddEdge(int start, int finish, int cost);
-
-  size_t Size() const { return size_; }
+  std::vector<Edge> graph_;
 };
 
 void Graph::AddEdge(int start, int finish, int cost) {
-  graph.push_back({start, finish, cost});
+  graph_.push_back({start, finish, cost});
 }
 
-std::vector<int> FordBellman(const Graph& graph, std::vector<int>& dp,
-                             std::vector<int>& parents) {
+std::vector<int> Graph::FindDistance(std::vector<int>& dp,
+                                     std::vector<int>& parents) {
   for (size_t k = 1; k <= dp.size() - 1; ++k) {
-    for (auto elem : graph.graph) {
+    for (auto elem : graph_) {
       if (dp[elem.start] + elem.cost < dp[elem.finish]) {
         dp[elem.finish] = dp[elem.start] + elem.cost;
         parents[elem.finish] = elem.start;
@@ -40,10 +43,10 @@ std::vector<int> FordBellman(const Graph& graph, std::vector<int>& dp,
   }
 
   std::vector<int> ans;
-  for (auto elem : graph.graph) {
+  for (auto elem : graph_) {
     if (dp[elem.start] + elem.cost < dp[elem.finish]) {
       int vertex = elem.finish;
-      for (size_t j = 0; j < graph.Size() - 1; ++j) {
+      for (size_t j = 0; j < Size() - 1; ++j) {
         vertex = parents[vertex];
       }
       int u = vertex;
@@ -72,12 +75,10 @@ int main() {
   Graph graph(num + 1);
 
   const int cKInf = 1e5;
-
   for (size_t i = 1; i <= num; ++i) {
     for (size_t j = 1; j <= num; ++j) {
       int cost;
       std::cin >> cost;
-
       if (cost != cKInf) {
         graph.AddEdge(i, j, cost);
       }
@@ -86,8 +87,7 @@ int main() {
 
   std::vector<int> dp(num + 1);
   std::vector<int> parents(num + 1, -1);
-
-  std::vector<int> res = FordBellman(graph, dp, parents);
+  std::vector<int> res = graph.FindDistance(dp, parents);
   if (!res.empty()) {
     std::cout << "YES"
               << "\n"
